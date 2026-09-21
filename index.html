@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Course Library — Xenos</title>
+<meta name="description" content="Every Xenos training course and session deck, discovered automatically from the repository.">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #090c1a;
+  --bg-2: #11162c;
+  --bg-3: #161c38;
+  --ink: #f4f6fc;
+  --dim: #8b93b8;
+  --dim-2: #5b6488;
+  --violet: #6c5cf5;
+  --violet-2: #9b8bff;
+  --line: rgba(244, 246, 252, 0.09);
+  --red: #ff6b6b;
+  --radius: 14px;
+  --radius-sm: 9px;
+  --container: 1120px;
+}
+
+html, body {
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+body {
+  font-family: 'Manrope', sans-serif;
+  line-height: 1.5;
+  background:
+    radial-gradient(circle at 12% -10%, rgba(108, 92, 245, 0.14), transparent 45%),
+    radial-gradient(circle at 100% 0%, rgba(108, 92, 245, 0.08), transparent 40%),
+    var(--bg);
+  background-attachment: fixed;
+}
+
+h1, h2, h3, .brand-font { font-family: 'Space Grotesk', sans-serif; }
+
+a { color: inherit; }
+
+.container {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 clamp(1.25rem, 4vw, 2.5rem);
+}
+
+/* ---------- header ---------- */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  backdrop-filter: blur(10px);
+  background: rgba(9, 12, 26, 0.75);
+  border-bottom: 1px solid var(--line);
+}
+
+.header-inner {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0.9rem clamp(1.25rem, 4vw, 2.5rem);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+}
+
+.brand svg { flex-shrink: 0; height: 22px; width: auto; }
+.brand .chev { fill: var(--violet); }
+.brand .wordmark { fill: var(--ink); }
+.brand .label { color: var(--dim); font-weight: 500; }
+.brand .divider { width: 1px; height: 16px; background: var(--line); }
+
+.header-nav a {
+  font-size: 0.85rem;
+  color: var(--dim);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: color 0.2s ease;
+}
+.header-nav a:hover { color: var(--violet-2); }
+
+/* ---------- hero / intro ---------- */
+.intro {
+  padding: clamp(2.5rem, 6vw, 4.5rem) 0 clamp(1.5rem, 3vw, 2rem);
+}
+
+.intro h1 {
+  font-size: clamp(1.9rem, 4.4vw, 3rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.08;
+  max-width: 16ch;
+}
+
+.intro h1 .accent { color: var(--violet-2); }
+
+.intro p {
+  margin-top: 0.9rem;
+  color: var(--dim);
+  font-size: clamp(0.95rem, 1.3vw, 1.08rem);
+  max-width: 58ch;
+}
+
+/* ---------- controls ---------- */
+.controls {
+  margin-top: 1.75rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 240px;
+  max-width: 420px;
+}
+
+.search-wrap svg {
+  position: absolute;
+  left: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  stroke: var(--dim-2);
+  pointer-events: none;
+}
+
+#filterInput {
+  width: 100%;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 0.65rem 0.9rem 0.65rem 2.3rem;
+  color: var(--ink);
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+#filterInput::placeholder { color: var(--dim-2); }
+#filterInput:focus { border-color: var(--violet); }
+
+.controls-meta {
+  font-size: 0.82rem;
+  color: var(--dim-2);
+  white-space: nowrap;
+}
+.controls-meta b { color: var(--dim); font-weight: 600; }
+
+/* ---------- library section ---------- */
+.library-section { padding: 0.5rem 0 clamp(3rem, 6vw, 5rem); }
+
+.library-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+/* course card = native <details> for free, accessible disclosure */
+.course-card {
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: border-color 0.25s ease, transform 0.25s ease;
+}
+.course-card:hover { border-color: rgba(108, 92, 245, 0.4); }
+.course-card[open] {
+  grid-column: 1 / -1;
+  border-color: var(--violet);
+}
+
+.course-card summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 1.1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+.course-card summary::-webkit-details-marker { display: none; }
+
+.course-icon {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(108, 92, 245, 0.14);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.course-icon svg { width: 18px; height: 18px; stroke: var(--violet-2); }
+
+.course-meta { flex: 1; min-width: 0; }
+.course-meta h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.course-meta .stat {
+  margin-top: 0.15rem;
+  font-size: 0.78rem;
+  color: var(--dim-2);
+}
+
+.course-toggle {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--dim-2);
+  transition: transform 0.25s ease;
+}
+.course-card[open] .course-toggle { transform: rotate(180deg); color: var(--violet-2); }
+
+.course-body {
+  padding: 0 1.25rem 1.15rem 1.25rem;
+  border-top: 1px solid var(--line);
+  padding-top: 0.9rem;
+}
+
+/* recursive file tree */
+.tree { list-style: none; display: flex; flex-direction: column; gap: 0.15rem; }
+.tree .tree { margin-left: 1.35rem; margin-top: 0.15rem; padding-left: 0.75rem; border-left: 1px dashed var(--line); }
+
+.tree-file, .tree-folder > summary {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.42rem 0.5rem;
+  border-radius: 7px;
+  font-size: 0.86rem;
+  color: var(--ink);
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+.tree-file:hover, .tree-folder > summary:hover { background: rgba(255, 255, 255, 0.04); }
+
+.tree-file svg, .tree-folder > summary svg { width: 15px; height: 15px; stroke: var(--dim); flex-shrink: 0; }
+.tree-file:hover svg { stroke: var(--violet-2); }
+
+.tree-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tree-tag {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--violet-2);
+  background: rgba(108, 92, 245, 0.12);
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.tree-folder { list-style: none; }
+.tree-folder > summary { cursor: pointer; list-style: none; }
+.tree-folder > summary::-webkit-details-marker { display: none; }
+.tree-folder .folder-caret { transition: transform 0.2s ease; }
+.tree-folder[open] > summary .folder-caret { transform: rotate(90deg); }
+
+/* ---------- states: skeleton / error / empty ---------- */
+.skeleton-card {
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+.skeleton-pulse {
+  border-radius: 8px;
+  background: linear-gradient(90deg, var(--bg-2) 0%, var(--bg-3) 50%, var(--bg-2) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.skeleton-icon { width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0; }
+.skeleton-lines { flex: 1; display: flex; flex-direction: column; gap: 0.5rem; }
+.skeleton-line { height: 10px; }
+.skeleton-line.w60 { width: 60%; }
+.skeleton-line.w35 { width: 35%; }
+
+.state-panel {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: clamp(2rem, 5vw, 3.5rem) 1.5rem;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+  color: var(--dim);
+}
+.state-panel h3 { font-size: 1.05rem; color: var(--ink); margin-bottom: 0.4rem; }
+.state-panel p { font-size: 0.88rem; max-width: 46ch; margin: 0 auto; }
+.state-panel.is-error h3 { color: var(--red); }
+
+.retry-btn {
+  margin-top: 1.1rem;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: var(--ink);
+  background: var(--bg-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 0.55rem 1.2rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease, transform 0.15s ease;
+}
+.retry-btn:hover { border-color: var(--violet); }
+.retry-btn:active { transform: scale(0.97); }
+
+/* ---------- footer ---------- */
+.site-footer {
+  border-top: 1px solid var(--line);
+  padding: 1.5rem clamp(1.25rem, 4vw, 2.5rem);
+}
+.site-footer .footer-inner {
+  max-width: var(--container);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+  color: var(--dim-2);
+}
+.site-footer a { color: var(--dim); text-decoration: none; }
+.site-footer a:hover { color: var(--violet-2); }
+
+/* reveal-on-enter, respects reduced motion */
+.reveal { opacity: 0; transform: translateY(14px); transition: opacity 0.5s ease, transform 0.5s ease; }
+.reveal.is-visible { opacity: 1; transform: translateY(0); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+@media (max-width: 640px) {
+  .course-card[open] { grid-column: 1 / -1; }
+  .header-nav span { display: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="#top" aria-label="Xenos Course Library, back to top">
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <path class="chev" d="M14 14 L54 50 L14 86 L30 86 L70 50 L30 14 Z"></path>
+      </svg>
+      <span class="wordmark-text">XENOS</span>
+      <span class="divider" aria-hidden="true"></span>
+      <span class="label">Course Library</span>
+    </a>
+    <nav class="header-nav">
+      <a href="https://github.com/SmartVision-Group/Courses" target="_blank" rel="noopener">
+        <span>Source repository</span>
+      </a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <div class="container">
+    <section class="intro">
+      <h1 class="reveal">Course <span class="accent">Library</span></h1>
+      <p class="reveal">Every training course and session deck your team has published, kept in one place. Add a folder to the repository and it shows up here automatically, no page edits required.</p>
+
+      <div class="controls reveal">
+        <div class="search-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="7"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="search" id="filterInput" placeholder="Filter courses or files" aria-label="Filter courses or files" disabled>
+        </div>
+        <span class="controls-meta" id="repoMeta">Loading repository info…</span>
+      </div>
+    </section>
+
+    <section class="library-section">
+      <div class="library-grid" id="libraryGrid" aria-live="polite"></div>
+    </section>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span>Xenos Course Library</span>
+    <a href="https://github.com/SmartVision-Group/Courses" target="_blank" rel="noopener">github.com/SmartVision-Group/Courses</a>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  // This page discovers its own content at runtime from this repository's
+  // git tree. Adding a course folder (or a file inside one) and pushing it
+  // is the entire publishing step — nothing here is hand-maintained.
+  var OWNER = 'SmartVision-Group';
+  var REPO = 'courses-site';
+  var API = 'https://api.github.com/repos/' + OWNER + '/' + REPO;
+  var CACHE_KEY = 'courses-hub-cache-v1';
+  var CACHE_TTL_MS = 60 * 1000;
+
+  var grid = document.getElementById('libraryGrid');
+  var metaEl = document.getElementById('repoMeta');
+  var filterInput = document.getElementById('filterInput');
+
+  var ICONS = {
+    folder: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"></path></svg>',
+    deck: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"></rect><path d="M8 21h8M12 17v4"></path></svg>',
+    doc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"></path><path d="M14 3v5h5"></path></svg>',
+    video: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="15" height="14" rx="2"></rect><path d="M17 10l5-3v10l-5-3"></path></svg>',
+    image: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="9" r="1.5"></circle><path d="M21 15l-5-5-9 9"></path></svg>',
+    file: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"></path></svg>',
+    caret: '<svg class="folder-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>',
+    chevronDown: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>'
+  };
+
+  function iconFor(name, isDir) {
+    if (isDir) return ICONS.folder;
+    var ext = (name.split('.').pop() || '').toLowerCase();
+    if (ext === 'html' || ext === 'htm') return ICONS.deck;
+    if (ext === 'pdf' || ext === 'md' || ext === 'txt' || ext === 'doc' || ext === 'docx') return ICONS.doc;
+    if (ext === 'mp4' || ext === 'mov' || ext === 'webm') return ICONS.video;
+    if (ext === 'png' || ext === 'jpg' || ext === 'jpeg' || ext === 'gif' || ext === 'svg' || ext === 'webp') return ICONS.image;
+    return ICONS.file;
+  }
+
+  function tagFor(name, isDir) {
+    if (isDir) return null;
+    var ext = (name.split('.').pop() || '').toLowerCase();
+    if (ext === 'html' || ext === 'htm') return 'Deck';
+    if (ext === 'pdf') return 'PDF';
+    if (ext === 'md') return 'Notes';
+    if (ext === 'mp4' || ext === 'mov' || ext === 'webm') return 'Video';
+    return null;
+  }
+
+  function titleCase(slug) {
+    return slug
+      .replace(/[-_]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .split(' ')
+      .map(function (w) { return w.charAt(0).toUpperCase() + w.slice(1); })
+      .join(' ');
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
+    });
+  }
+
+  // Build a nested tree from GitHub's flat recursive tree listing.
+  // Each node: { name, path, isDir, children: {} }
+  function buildTree(paths) {
+    var root = { name: '', path: '', isDir: true, children: {} };
+    paths.forEach(function (item) {
+      var parts = item.path.split('/');
+      var node = root;
+      parts.forEach(function (part, i) {
+        var isLast = i === parts.length - 1;
+        var isDir = !isLast || item.type === 'tree';
+        if (!node.children[part]) {
+          node.children[part] = {
+            name: part,
+            path: parts.slice(0, i + 1).join('/'),
+            isDir: isDir,
+            children: {}
+          };
+        }
+        node = node.children[part];
+      });
+    });
+    return root;
+  }
+
+  function countFiles(node) {
+    var keys = Object.keys(node.children);
+    var count = 0;
+    keys.forEach(function (k) {
+      var child = node.children[k];
+      if (child.isDir) count += countFiles(child);
+      else count += 1;
+    });
+    return count;
+  }
+
+  function renderTree(node, depth) {
+    var keys = Object.keys(node.children).sort(function (a, b) {
+      var da = node.children[a].isDir, db = node.children[b].isDir;
+      if (da !== db) return da ? -1 : 1;
+      return a.localeCompare(b);
+    });
+
+    if (keys.length === 0) return '';
+
+    var html = '<ul class="tree">';
+    keys.forEach(function (key) {
+      var child = node.children[key];
+      if (child.isDir) {
+        html += '<li>' +
+          '<details class="tree-folder">' +
+            '<summary>' + ICONS.caret + iconFor(child.name, true) + '<span class="tree-name">' + escapeHtml(titleCase(child.name)) + '</span></summary>' +
+            renderTree(child, depth + 1) +
+          '</details>' +
+        '</li>';
+      } else {
+        var tag = tagFor(child.name, false);
+        html += '<li>' +
+          '<a class="tree-file" href="' + escapeHtml(child.path) + '" target="_blank" rel="noopener">' +
+            iconFor(child.name, false) +
+            '<span class="tree-name">' + escapeHtml(child.name) + '</span>' +
+            (tag ? '<span class="tree-tag">' + tag + '</span>' : '') +
+          '</a>' +
+        '</li>';
+      }
+    });
+    html += '</ul>';
+    return html;
+  }
+
+  function renderSkeleton() {
+    var html = '';
+    for (var i = 0; i < 3; i++) {
+      html += '<div class="skeleton-card">' +
+        '<div class="skeleton-pulse skeleton-icon"></div>' +
+        '<div class="skeleton-lines">' +
+          '<div class="skeleton-pulse skeleton-line w60"></div>' +
+          '<div class="skeleton-pulse skeleton-line w35"></div>' +
+        '</div>' +
+      '</div>';
+    }
+    grid.innerHTML = html;
+  }
+
+  function renderEmpty() {
+    grid.innerHTML = '<div class="state-panel">' +
+      '<h3>No courses yet</h3>' +
+      '<p>Add a folder to the repository and push it. It will appear here the next time this page loads.</p>' +
+    '</div>';
+  }
+
+  function renderError(message) {
+    grid.innerHTML = '<div class="state-panel is-error">' +
+      '<h3>Could not load the course list</h3>' +
+      '<p>' + escapeHtml(message) + '</p>' +
+      '<button class="retry-btn" id="retryBtn" type="button">Try again</button>' +
+    '</div>';
+    var btn = document.getElementById('retryBtn');
+    if (btn) btn.addEventListener('click', function () { load(true); });
+  }
+
+  function renderCourses(root) {
+    var courseKeys = Object.keys(root.children)
+      .filter(function (k) { return root.children[k].isDir; })
+      .sort(function (a, b) { return a.localeCompare(b); });
+
+    if (courseKeys.length === 0) {
+      renderEmpty();
+      return;
+    }
+
+    var html = '';
+    courseKeys.forEach(function (key) {
+      var course = root.children[key];
+      var fileCount = countFiles(course);
+      html += '<details class="course-card" data-search="' + escapeHtml(titleCase(course.name).toLowerCase()) + '">' +
+        '<summary>' +
+          '<span class="course-icon">' + ICONS.folder + '</span>' +
+          '<span class="course-meta">' +
+            '<h3>' + escapeHtml(titleCase(course.name)) + '</h3>' +
+            '<span class="stat">' + fileCount + (fileCount === 1 ? ' item' : ' items') + '</span>' +
+          '</span>' +
+          '<span class="course-toggle">' + ICONS.chevronDown + '</span>' +
+        '</summary>' +
+        '<div class="course-body">' + renderTree(course, 0) + '</div>' +
+      '</details>';
+    });
+
+    grid.innerHTML = html;
+    revealObserve();
+    wireFilter(root, courseKeys);
+  }
+
+  function wireFilter(root, courseKeys) {
+    filterInput.disabled = false;
+    filterInput.addEventListener('input', function () {
+      var q = filterInput.value.trim().toLowerCase();
+      var cards = grid.querySelectorAll('.course-card');
+      cards.forEach(function (card) {
+        if (!q) { card.style.display = ''; return; }
+        var text = card.textContent.toLowerCase();
+        card.style.display = text.indexOf(q) !== -1 ? '' : 'none';
+      });
+    });
+  }
+
+  function revealObserve() {
+    var els = document.querySelectorAll('.reveal:not(.is-visible)');
+    if (!('IntersectionObserver' in window)) {
+      els.forEach(function (el) { el.classList.add('is-visible'); });
+      return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    els.forEach(function (el) { io.observe(el); });
+  }
+
+  function formatDate(iso) {
+    try {
+      var d = new Date(iso);
+      return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+    } catch (e) {
+      return iso;
+    }
+  }
+
+  function readCache() {
+    try {
+      var raw = sessionStorage.getItem(CACHE_KEY);
+      if (!raw) return null;
+      var parsed = JSON.parse(raw);
+      if (Date.now() - parsed.ts > CACHE_TTL_MS) return null;
+      return parsed;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function writeCache(data) {
+    try {
+      sessionStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data: data }));
+    } catch (e) { /* storage unavailable, non-fatal */ }
+  }
+
+  function load(forceFresh) {
+    var cached = !forceFresh && readCache();
+    if (cached) {
+      apply(cached.data);
+      return;
+    }
+
+    renderSkeleton();
+    metaEl.textContent = 'Loading repository info…';
+
+    fetch(API)
+      .then(function (res) {
+        if (!res.ok) throw new Error('repo lookup failed (' + res.status + ')');
+        return res.json();
+      })
+      .then(function (repoInfo) {
+        var branch = repoInfo.default_branch || 'main';
+        return fetch(API + '/git/trees/' + branch + '?recursive=1')
+          .then(function (res) {
+            if (!res.ok) throw new Error('tree lookup failed (' + res.status + ')');
+            return res.json();
+          })
+          .then(function (treeInfo) {
+            return { repoInfo: repoInfo, treeInfo: treeInfo };
+          });
+      })
+      .then(function (payload) {
+        writeCache(payload);
+        apply(payload);
+      })
+      .catch(function (err) {
+        var isRateLimit = /403/.test(err.message);
+        renderError(
+          isRateLimit
+            ? 'GitHub’s public API rate limit was reached for your network. Wait a few minutes and try again.'
+            : 'There was a problem reaching GitHub (' + err.message + ').'
+        );
+        metaEl.textContent = 'Unable to load';
+      });
+  }
+
+  function apply(payload) {
+    var repoInfo = payload.repoInfo;
+    var treeInfo = payload.treeInfo;
+
+    var paths = (treeInfo.tree || []).filter(function (item) {
+      // Only files (blobs) define real leaves; directories are implied by
+      // path segments, so we only need blob paths to reconstruct the tree,
+      // and we drop repo plumbing that isn't course content.
+      if (item.type !== 'blob') return false;
+      if (item.path === 'index.html' || item.path === 'README.md') return false;
+      if (item.path.indexOf('.github/') === 0) return false;
+      if (item.path.indexOf('.git/') === 0) return false;
+      return true;
+    });
+
+    var root = buildTree(paths);
+    var courseCount = Object.keys(root.children).filter(function (k) { return root.children[k].isDir; }).length;
+
+    metaEl.innerHTML = '<b>' + courseCount + '</b> ' + (courseCount === 1 ? 'course' : 'courses') +
+      (repoInfo.pushed_at ? ' &middot; updated ' + formatDate(repoInfo.pushed_at) : '');
+
+    renderCourses(root);
+  }
+
+  revealObserve();
+  load(false);
+})();
+</script>
+</body>
+</html>
