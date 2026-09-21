@@ -476,13 +476,19 @@ a { color: inherit; }
     return null;
   }
 
+  var KNOWN_ACRONYMS = ['qa', 'ui', 'ux', 'api', 'erp', 'crm', 'hr', 'it', 'sql', 'css', 'html', 'sdk', 'faq'];
+
   function titleCase(slug) {
     return slug
       .replace(/[-_]+/g, ' ')
       .replace(/\s+/g, ' ')
       .trim()
       .split(' ')
-      .map(function (w) { return w.charAt(0).toUpperCase() + w.slice(1); })
+      .map(function (w) {
+        var lower = w.toLowerCase();
+        if (KNOWN_ACRONYMS.indexOf(lower) !== -1) return lower.toUpperCase();
+        return w.charAt(0).toUpperCase() + w.slice(1);
+      })
       .join(' ');
   }
 
